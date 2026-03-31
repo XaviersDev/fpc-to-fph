@@ -4,7 +4,7 @@ import re
 import io
 import zipfile
 import json
-import httpx
+import urllib.request
 
 app = FastAPI()
 
@@ -122,24 +122,30 @@ async def ai_fix_hard_cases(code: str) -> str | None:
         "currentPagePath": "/chatgpt-4o",
     }
 
+    import asyncio
+
+    def _sync_request():
+        body = json.dumps(payload).encode()
+        req = urllib.request.Request(
+            FPTOOLS_API_URL,
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {FPTOOLS_API_KEY}",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode())
+
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.post(
-                FPTOOLS_API_URL,
-                json=payload,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {FPTOOLS_API_KEY}",
-                },
-            )
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("response"):
-                result = data["response"].strip()
-                result = re.sub(r'^```python\s*', '', result)
-                result = re.sub(r'^```\s*', '', result)
-                result = re.sub(r'\s*```$', '', result)
-                return result.strip()
+        data = await asyncio.get_event_loop().run_in_executor(None, _sync_request)
+        if data.get("response"):
+            result = data["response"].strip()
+            result = re.sub(r'^```python\s*', '', result)
+            result = re.sub(r'^```\s*', '', result)
+            result = re.sub(r'\s*```$', '', result)
+            return result.strip()
     except Exception:
         pass
     return None
