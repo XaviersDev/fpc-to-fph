@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPC to FPH Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --panel-bg: #141414;
+            --border-color: #2a2a2a;
+            --text-main: #e0e0e0;
+            --fpc-red: #e53935;
+            --fph-blue: #039be5;
+            --py-yellow: #ffeb3b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            width: 100%;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .icon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .icon-container svg { width: 50px; height: 50px; }
+        .fpc-color { color: var(--fpc-red); fill: var(--fpc-red); }
+        .fph-color { color: var(--fph-blue); fill: var(--fph-blue); }
+        .py-color { fill: var(--py-yellow); width: 35px !important; height: 35px !important; }
+
+        .connector { display: flex; align-items: center; gap: 15px; }
+        .line { width: 70px; height: 3px; background: linear-gradient(90deg, var(--fpc-red), var(--fph-blue)); border-radius: 2px;}
+
+        main {
+            width: 90%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        h2 { font-size: 16px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; cursor: pointer; }
+        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        
+        .btn-upload {
+            background-color: #222; color: #fff; padding: 8px 16px; border-radius: 6px;
+            font-size: 12px; font-weight: 600; border: 1px solid #444; transition: 0.2s;
+        }
+        .file-upload-wrapper:hover .btn-upload { background-color: #333; }
+
+        textarea {
+            width: 100%;
+            height: 450px;
+            background-color: #0f0f0f;
+            color: #a6accd;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        textarea:focus { outline: none; border-color: var(--fpc-red); }
+
+        .actions { margin-top: 20px; display: flex; justify-content: center; }
+
+        .btn-convert {
+            background: linear-gradient(90deg, var(--fpc-red), var(--fph-blue));
+            color: #fff;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-convert:hover { opacity: 0.9; }
+        .btn-convert:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="icon-container fpc-color">
+            <svg viewBox="0 0 24 24"><path d="M21.94 8.76C21.75 8.5 20.89 7.85 19.34 7.64C18.3 4.29 15.65 2 12.5 2C10.76 2 9.17 2.76 8.04 4.04C7.79 3.59 7.45 3.2 7 2.91L6.75 2.75L6.68 3.04C6.54 3.73 6.64 4.41 6.95 5.04C5.16 6.34 4 8.44 4 10.82C4 11 4 11.18 4.03 11.36L2.34 11.75L2.55 12.68C2.96 14.5 4.3 16.03 6.09 16.63C6.67 20.21 9.68 23 13.38 23C16.89 23 19.86 20.47 20.55 17.15C21.36 16.5 22 15.68 22 14.73C22 14.54 21.97 14.36 21.9 14.18L21.71 13.6L22.25 13.25C22.74 12.92 23 12.43 23 11.91C23 11.36 22.7 10.85 22.18 10.53L21.64 10.21L21.94 8.76Z"/></svg>
+            Cardinal
+        </div>
+        <div class="connector">
+            <div class="line"></div>
+            <svg class="py-color" viewBox="0 0 24 24"><path d="M12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10Z"/></svg>
+            <div class="line"></div>
+        </div>
+        <div class="icon-container fph-color">
+            <svg viewBox="0 0 24 24"><path d="M12,2A9,9 0 0,0 3,11V11.5C3,13.43 4.57,15 6.5,15C7.43,15 8.27,14.63 8.9,14.04C9.59,14.65 10.5,15 11.5,15C12.8,15 13.91,14.28 14.5,13.2C15.09,14.28 16.2,15 17.5,15C18.5,15 19.41,14.65 20.1,14.04C20.73,14.63 21.57,15 22.5,15H23V11A9,9 0 0,0 12,2M8,9A1.5,1.5 0 0,1 9.5,10.5A1.5,1.5 0 0,1 8,12A1.5,1.5 0 0,1 6.5,10.5A1.5,1.5 0 0,1 8,9M16,9A1.5,1.5 0 0,1 17.5,10.5A1.5,1.5 0 0,1 16,12A1.5,1.5 0 0,1 14.5,10.5A1.5,1.5 0 0,1 16,9M6.5,17A2,2 0 0,0 4.5,19A2,2 0 0,0 6.5,21A2,2 0 0,0 8.5,19A2,2 0 0,0 6.5,17M11.5,17A2,2 0 0,0 9.5,19A2,2 0 0,0 11.5,21A2,2 0 0,0 13.5,19A2,2 0 0,0 11.5,17M17.5,17A2,2 0 0,0 15.5,19A2,2 0 0,0 17.5,21A2,2 0 0,0 19.5,19A2,2 0 0,0 17.5,17Z"/></svg>
+            Hub
+        </div>
+    </header>
+
+    <main>
+        <div class="panel-header">
+            <h2>Плагин FUnPay Cardinal</h2>
+            <div class="file-upload-wrapper">
+                <button class="btn-upload">📁 Загрузить .py файл</button>
+                <input type="file" accept=".py,.txt" onchange="handleFileUpload(event)">
+            </div>
+        </div>
+        <textarea id="fpcCode" spellcheck="false" placeholder="Вставьте код плагина Cardinal сюда, либо загрузите файл..."></textarea>
+        
+        <div class="actions">
+            <button id="convertBtn" class="btn-convert" onclick="convertPlugin()">Сконвертировать</button>
+        </div>
+    </main>
+
+    <script>
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("fpcCode").value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+
+        async function convertPlugin() {
+            const code = document.getElementById("fpcCode").value;
+            if (!code.trim()) {
+                alert("Пожалуйста, вставьте код или загрузите файл.");
+                return;
+            }
+
+            const btn = document.getElementById("convertBtn");
+            btn.disabled = true;
+            btn.innerText = "⏳ Жду ответ от серва";
+
+            try {
+                
+                const response = await fetch('/api/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                });
+
+                if (!response.ok) throw new Error("Ошибка конвертации на серве");
+
+                
+                const blob = await response.blob();
+                
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                
+                const disposition = response.headers.get('Content-Disposition');
+                let filename = 'converted_fph_plugin.zip';
+                if (disposition && disposition.includes('filename="')) {
+                    filename = disposition.split('filename="')[1].split('"')[0];
+                }
+                
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+            } catch (error) {
+                alert("Произошла ошибка: " + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Сгенерировать и скачать плагин.ZIP";
+            }
+        }
+    </script>
+</body>
+</html>
